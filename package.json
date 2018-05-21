@@ -1,0 +1,21 @@
+{
+  "name": "whiteboard",
+  "version": "0.0.1",
+  "description": "Multi-user whiteboard app",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "start": "http-server -c-1 & node server.js",
+    "buildandstart": "tsc; http-server -c-1 & node server.js"
+  },
+  "author": "Ted Presley",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^0.11.1",
+    "typescript": "^2.8.3"
+  },
+  "dependencies": {
+    "socket.io": "^2.1.1"
+  }
+}
