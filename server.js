@@ -16,7 +16,8 @@ io.sockets.on('connection', (socket) => {
     socket.broadcast.emit('draw', {
       clickX: data.clickX,
       clickY: data.clickY,
-      clickDrag: data.clickDrag
+      clickDrag: data.clickDrag,
+      color: data.color
     });
   });
 });

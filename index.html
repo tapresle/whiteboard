@@ -5,9 +5,7 @@
     <script src="http://localhost:4000/socket.io/socket.io.js"></script>
     <style>
       html, body {
-        background: #392C44;
-        height: 100%;
-        width: 100%;
+        background: #ECECEC;
       }
  
       canvas {
@@ -22,6 +20,15 @@
   <body>
     <main>
       <canvas id="whiteboard"></canvas>
+      <button onclick="whiteboard.clear()">Clear Board</button>
+      <button onclick="whiteboard.eraser()">Eraser</button>
+      <button onclick="whiteboard.line('red')">Red</button>
+      <button onclick="whiteboard.line('blue')">Blue</button>
+      <button onclick="whiteboard.line('green')">Green</button>
+      <button onclick="whiteboard.line('yellow')">Yellow</button>
+      <button onclick="whiteboard.line('purple')">Purple</button>
+      <button onclick="whiteboard.line('black')">Black</button>
+      Color picker: <input type="color" value="#FF0000" onchange="whiteboard.line(this.value)">
     </main>
     
     <script type="text/javascript" src="./dist/whiteboard.js"></script>
