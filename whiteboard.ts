@@ -8,10 +8,7 @@ class Whiteboard {
   offsetLeft = 0;
   paint = false;
   preventDrawing = false;
-  clickX = new Array();
-  clickY = new Array();
-  clickDrag = new Array();
-  color = new Array();
+  whiteboardModel = new WhiteboardModel();
   drawingTimeout;
   currentColor = 'black';
 
@@ -28,10 +25,7 @@ class Whiteboard {
 
     this.socket = io.connect('http://localhost:4000');
     this.socket.on('draw', (data) => {
-      this.clickX = data.clickX;
-      this.clickY = data.clickY;
-      this.clickDrag = data.clickDrag;
-      this.color = data.color;
+      this.whiteboardModel = data.whiteboardModel;
       this.redraw(true);
 
       this.canvas.style.borderColor = 'red';
@@ -58,6 +52,12 @@ class Whiteboard {
     this.canvas.addEventListener('mousemove', (e) => {
       this.draw(e.pageX - this.offsetLeft, e.pageY - this.offsetTop, true, this.currentColor);
     });
+
+    // Draw initial whiteboard
+    this.socket.on('drawInitialWhiteboard', (data) => {
+      this.whiteboardModel = data.whiteboardModel;
+      this.redraw(true);
+    });
   }
 
   draw (x, y, isDragging, color) {
@@ -68,24 +68,24 @@ class Whiteboard {
   }
 
   addClick(x, y, isDragging, color) {
-    this.clickX.push(x);
-    this.clickY.push(y);
-    this.clickDrag.push(isDragging);
-    this.color.push(color);
+    this.whiteboardModel.clickX.push(x);
+    this.whiteboardModel.clickY.push(y);
+    this.whiteboardModel.clickDrag.push(isDragging);
+    this.whiteboardModel.color.push(color);
   }
 
   redraw(isDrawingFromNetwork) {
     this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-    for (var i = 0; i < this.clickX.length; i++) {
+    for (var i = 0; i < this.whiteboardModel.clickX.length; i++) {
       this.ctx.beginPath();
-      if (this.clickDrag[i] && i) {
-        this.ctx.moveTo(this.clickX[i-1], this.clickY[i-1]);
+      if (this.whiteboardModel.clickDrag[i] && i) {
+        this.ctx.moveTo(this.whiteboardModel.clickX[i-1], this.whiteboardModel.clickY[i-1]);
       } else {
-        this.ctx.moveTo(this.clickX[i], this.clickY[i]);
+        this.ctx.moveTo(this.whiteboardModel.clickX[i], this.whiteboardModel.clickY[i]);
       }
-      this.ctx.lineTo(this.clickX[i], this.clickY[i]);
+      this.ctx.lineTo(this.whiteboardModel.clickX[i], this.whiteboardModel.clickY[i]);
       this.ctx.closePath();
-      this.ctx.strokeStyle = this.color[i];
+      this.ctx.strokeStyle = this.whiteboardModel.color[i];
       this.ctx.stroke();
     }
 
@@ -94,20 +94,14 @@ class Whiteboard {
 
     if (!isDrawingFromNetwork) {
       this.socket.emit('drawClick', {
-        clickX: this.clickX,
-        clickY: this.clickY,
-        clickDrag: this.clickDrag,
-        color: this.color
+        whiteboardModel: this.whiteboardModel
       });
     }
   }
 
   clear() {
     if (window.confirm('Are you sure you want to clear the board?')) {
-      this.clickX = new Array();
-      this.clickY = new Array();
-      this.clickDrag = new Array();
-      this.color = new Array();
+      this.whiteboardModel = new WhiteboardModel();
       this.redraw(false);
     }
   }
@@ -127,4 +121,12 @@ class Whiteboard {
   }
 }
 
+class WhiteboardModel {
+  clickX: Array<number> = new Array();
+  clickY: Array<number> = new Array();
+  clickDrag: Array<number> = new Array();
+  color: Array<string> = new Array();
+}
+
+// Do the thing
 let whiteboard = new Whiteboard();

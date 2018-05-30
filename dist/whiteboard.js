@@ -4,10 +4,7 @@ class Whiteboard {
         this.offsetLeft = 0;
         this.paint = false;
         this.preventDrawing = false;
-        this.clickX = new Array();
-        this.clickY = new Array();
-        this.clickDrag = new Array();
-        this.color = new Array();
+        this.whiteboardModel = new WhiteboardModel();
         this.currentColor = 'black';
         this.canvas = document.getElementById('whiteboard');
         this.canvas.height = 800; //document.body.clientHeight;
@@ -18,10 +15,7 @@ class Whiteboard {
         this.line(this.currentColor);
         this.socket = io.connect('http://localhost:4000');
         this.socket.on('draw', (data) => {
-            this.clickX = data.clickX;
-            this.clickY = data.clickY;
-            this.clickDrag = data.clickDrag;
-            this.color = data.color;
+            this.whiteboardModel = data.whiteboardModel;
             this.redraw(true);
             this.canvas.style.borderColor = 'red';
             // If someone else is currently drawing, prevent others from interrupting
@@ -47,6 +41,11 @@ class Whiteboard {
         this.canvas.addEventListener('mousemove', (e) => {
             this.draw(e.pageX - this.offsetLeft, e.pageY - this.offsetTop, true, this.currentColor);
         });
+        // Draw initial whiteboard
+        this.socket.on('drawInitialWhiteboard', (data) => {
+            this.whiteboardModel = data.whiteboardModel;
+            this.redraw(true);
+        });
     }
     draw(x, y, isDragging, color) {
         if (this.paint && !this.preventDrawing) {
@@ -55,43 +54,37 @@ class Whiteboard {
         }
     }
     addClick(x, y, isDragging, color) {
-        this.clickX.push(x);
-        this.clickY.push(y);
-        this.clickDrag.push(isDragging);
-        this.color.push(color);
+        this.whiteboardModel.clickX.push(x);
+        this.whiteboardModel.clickY.push(y);
+        this.whiteboardModel.clickDrag.push(isDragging);
+        this.whiteboardModel.color.push(color);
     }
     redraw(isDrawingFromNetwork) {
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-        for (var i = 0; i < this.clickX.length; i++) {
+        for (var i = 0; i < this.whiteboardModel.clickX.length; i++) {
             this.ctx.beginPath();
-            if (this.clickDrag[i] && i) {
-                this.ctx.moveTo(this.clickX[i - 1], this.clickY[i - 1]);
+            if (this.whiteboardModel.clickDrag[i] && i) {
+                this.ctx.moveTo(this.whiteboardModel.clickX[i - 1], this.whiteboardModel.clickY[i - 1]);
             }
             else {
-                this.ctx.moveTo(this.clickX[i], this.clickY[i]);
+                this.ctx.moveTo(this.whiteboardModel.clickX[i], this.whiteboardModel.clickY[i]);
             }
-            this.ctx.lineTo(this.clickX[i], this.clickY[i]);
+            this.ctx.lineTo(this.whiteboardModel.clickX[i], this.whiteboardModel.clickY[i]);
             this.ctx.closePath();
-            this.ctx.strokeStyle = this.color[i];
+            this.ctx.strokeStyle = this.whiteboardModel.color[i];
             this.ctx.stroke();
         }
         // Reset to last client's color so they don't accidentally hold onto the last from network
         this.ctx.strokeStyle = this.currentColor;
         if (!isDrawingFromNetwork) {
             this.socket.emit('drawClick', {
-                clickX: this.clickX,
-                clickY: this.clickY,
-                clickDrag: this.clickDrag,
-                color: this.color
+                whiteboardModel: this.whiteboardModel
             });
         }
     }
     clear() {
         if (window.confirm('Are you sure you want to clear the board?')) {
-            this.clickX = new Array();
-            this.clickY = new Array();
-            this.clickDrag = new Array();
-            this.color = new Array();
+            this.whiteboardModel = new WhiteboardModel();
             this.redraw(false);
         }
     }
@@ -108,5 +101,14 @@ class Whiteboard {
         this.ctx.lineCap = 'round';
     }
 }
+class WhiteboardModel {
+    constructor() {
+        this.clickX = new Array();
+        this.clickY = new Array();
+        this.clickDrag = new Array();
+        this.color = new Array();
+    }
+}
+// Do the thing
 let whiteboard = new Whiteboard();
 //# sourceMappingURL=whiteboard.js.map

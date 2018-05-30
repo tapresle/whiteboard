@@ -1,11 +1,19 @@
 const io = require('socket.io').listen(4000);
 let clients = [];
+let currentWhiteboardModel;
 
 io.sockets.on('connection', (socket) => {
   // Add new Client to list, use TBD;
   clients.push(socket.client.id);
   console.log('New client, ' + clients.length + ' clients connected.');
 
+  // Send the new client the initial whiteboard, if any
+  if (currentWhiteboardModel) {
+    socket.emit('drawInitialWhiteboard', {
+      whiteboardModel: currentWhiteboardModel
+    });
+  }
+  
   socket.on('disconnecting', (reason) => {
     clients.splice(clients.indexOf(socket.client.id, 1));
     console.log('Client left, ' + clients.length + ' clients remain.');
@@ -13,11 +21,9 @@ io.sockets.on('connection', (socket) => {
 
   // When someone draws, send it out to everyone else
   socket.on('drawClick', (data) => {
+    currentWhiteboardModel = data.whiteboardModel;
     socket.broadcast.emit('draw', {
-      clickX: data.clickX,
-      clickY: data.clickY,
-      clickDrag: data.clickDrag,
-      color: data.color
+      whiteboardModel: data.whiteboardModel
     });
   });
 });
