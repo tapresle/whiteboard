@@ -1,6 +1,7 @@
 const io = require('socket.io').listen(4000);
 let clients = [];
 let currentWhiteboardModel;
+let roomMap = {};
 
 io.sockets.on('connection', (socket) => {
   // Add new Client to list, use TBD;
@@ -24,6 +25,17 @@ io.sockets.on('connection', (socket) => {
     currentWhiteboardModel = data.whiteboardModel;
     socket.broadcast.emit('draw', {
       whiteboardModel: data.whiteboardModel
+    });
+  });
+
+  socket.on('joinRoom', (data) => {
+    socket.join(data.room);
+    roomMap[data.room] = {roomId: data.room, whiteboardModel: null};
+    console.log('Client ' + socket.client.id + ', joined room ' + data.room);
+    
+    socket.emit('joinedRoom', {
+      roomId: data.room,
+      whiteboardModel: null
     });
   });
 });

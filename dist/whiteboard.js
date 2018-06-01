@@ -46,6 +46,9 @@ class Whiteboard {
             this.whiteboardModel = data.whiteboardModel;
             this.redraw(true);
         });
+        this.socket.on('joinedRoom', (data) => {
+            alert('Joined room: ' + data.roomId);
+        });
     }
     draw(x, y, isDragging, color) {
         if (this.paint && !this.preventDrawing) {
@@ -99,6 +102,12 @@ class Whiteboard {
         this.currentColor = color;
         this.ctx.lineWidth = 5;
         this.ctx.lineCap = 'round';
+    }
+    joinRoom() {
+        let room = document.getElementById('room').value;
+        this.socket.emit('joinRoom', {
+            room: room
+        });
     }
 }
 class WhiteboardModel {
