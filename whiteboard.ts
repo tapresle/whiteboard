@@ -1,7 +1,7 @@
 declare var io:any;
 
 class Whiteboard {
-  canvas;
+  canvas:HTMLCanvasElement;
   ctx;
   socket;
   offsetTop = 0;
@@ -11,9 +11,10 @@ class Whiteboard {
   whiteboardModel = new WhiteboardModel();
   drawingTimeout;
   currentColor = 'black';
+  currentRoom:string = 'default';
 
   constructor() {
-    this.canvas = document.getElementById('whiteboard');
+    this.canvas = <HTMLCanvasElement>document.getElementById('whiteboard');
     this.canvas.height = 800; //document.body.clientHeight;
     this.canvas.width = 1280; //document.body.clientWidth;
 
@@ -53,14 +54,14 @@ class Whiteboard {
       this.draw(e.pageX - this.offsetLeft, e.pageY - this.offsetTop, true, this.currentColor);
     });
 
-    // Draw initial whiteboard
-    this.socket.on('drawInitialWhiteboard', (data) => {
-      this.whiteboardModel = data.whiteboardModel;
-      this.redraw(true);
-    });
+    // join default room at startup
+    this.joinRoom();
 
     this.socket.on('joinedRoom', (data) => {
       alert('Joined room: ' + data.roomId);
+      this.currentRoom = data.roomId;
+      this.whiteboardModel = data.whiteboardModel;
+      this.redraw(true);
     });
   }
 
@@ -98,7 +99,8 @@ class Whiteboard {
 
     if (!isDrawingFromNetwork) {
       this.socket.emit('drawClick', {
-        whiteboardModel: this.whiteboardModel
+        whiteboardModel: this.whiteboardModel,
+        roomId: this.currentRoom
       });
     }
   }
