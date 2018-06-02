@@ -132,6 +132,17 @@ class Whiteboard {
       room: room
     });
   }
+
+  saveWhiteboard() {
+    let downloadLink = document.createElement('a');
+    downloadLink.download = 'whiteboard';
+    downloadLink.href = this.canvas.toDataURL('image/png');
+    downloadLink.dataset.downloadurl = ['image/png', downloadLink.download, downloadLink.href].join(':');
+
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+  }
 }
 
 class WhiteboardModel {

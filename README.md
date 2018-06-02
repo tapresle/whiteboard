@@ -14,10 +14,11 @@ If you want to test on other devices, make sure to change `localhost` to your co
 Have a feature you'd like to see? Please open an issue with details, or a pull request with the functionality and I'll be happy to review them.
 
 ## Next features
-- Create custom keyed room
-- Enter custom keyed room
-- Text
-- Images
-- Shapes
-- Mobile support for drawing (Viewing works currently!)
-- Build/Deployment support for Windows
+- [x] Create custom keyed room
+- [x] Enter custom keyed room
+- [x] Save drawing
+- [ ] Text
+- [ ] Images
+- [ ] Shapes
+- [ ] Mobile support for drawing (Viewing works currently!)
+- [ ] Build/Deployment support for Windows

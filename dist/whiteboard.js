@@ -6,6 +6,7 @@ class Whiteboard {
         this.preventDrawing = false;
         this.whiteboardModel = new WhiteboardModel();
         this.currentColor = 'black';
+        this.currentRoom = 'default';
         this.canvas = document.getElementById('whiteboard');
         this.canvas.height = 800; //document.body.clientHeight;
         this.canvas.width = 1280; //document.body.clientWidth;
@@ -41,13 +42,13 @@ class Whiteboard {
         this.canvas.addEventListener('mousemove', (e) => {
             this.draw(e.pageX - this.offsetLeft, e.pageY - this.offsetTop, true, this.currentColor);
         });
-        // Draw initial whiteboard
-        this.socket.on('drawInitialWhiteboard', (data) => {
-            this.whiteboardModel = data.whiteboardModel;
-            this.redraw(true);
-        });
+        // join default room at startup
+        this.joinRoom();
         this.socket.on('joinedRoom', (data) => {
             alert('Joined room: ' + data.roomId);
+            this.currentRoom = data.roomId;
+            this.whiteboardModel = data.whiteboardModel;
+            this.redraw(true);
         });
     }
     draw(x, y, isDragging, color) {
@@ -81,7 +82,8 @@ class Whiteboard {
         this.ctx.strokeStyle = this.currentColor;
         if (!isDrawingFromNetwork) {
             this.socket.emit('drawClick', {
-                whiteboardModel: this.whiteboardModel
+                whiteboardModel: this.whiteboardModel,
+                roomId: this.currentRoom
             });
         }
     }
@@ -108,6 +110,17 @@ class Whiteboard {
         this.socket.emit('joinRoom', {
             room: room
         });
+    }
+    saveWhiteboard() {
+        var dlLink = document.createElement('a');
+        this.ctx.fillStyle = 'gray';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        dlLink.download = 'whiteboard';
+        dlLink.href = this.canvas.toDataURL('image/png');
+        dlLink.dataset.downloadurl = ['image/png', dlLink.download, dlLink.href].join(':');
+        document.body.appendChild(dlLink);
+        dlLink.click();
+        document.body.removeChild(dlLink);
     }
 }
 class WhiteboardModel {
