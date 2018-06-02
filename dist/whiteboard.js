@@ -64,7 +64,9 @@ class Whiteboard {
         this.whiteboardModel.color.push(color);
     }
     redraw(isDrawingFromNetwork) {
-        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        //this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        this.ctx.fillStyle = 'white';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         for (var i = 0; i < this.whiteboardModel.clickX.length; i++) {
             this.ctx.beginPath();
             if (this.whiteboardModel.clickDrag[i] && i) {
@@ -112,15 +114,13 @@ class Whiteboard {
         });
     }
     saveWhiteboard() {
-        var dlLink = document.createElement('a');
-        this.ctx.fillStyle = 'gray';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        dlLink.download = 'whiteboard';
-        dlLink.href = this.canvas.toDataURL('image/png');
-        dlLink.dataset.downloadurl = ['image/png', dlLink.download, dlLink.href].join(':');
-        document.body.appendChild(dlLink);
-        dlLink.click();
-        document.body.removeChild(dlLink);
+        let downloadLink = document.createElement('a');
+        downloadLink.download = 'whiteboard';
+        downloadLink.href = this.canvas.toDataURL('image/png');
+        downloadLink.dataset.downloadurl = ['image/png', downloadLink.download, downloadLink.href].join(':');
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
     }
 }
 class WhiteboardModel {

@@ -80,7 +80,8 @@ class Whiteboard {
   }
 
   redraw(isDrawingFromNetwork) {
-    this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+    this.ctx.fillStyle = 'white';
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     for (var i = 0; i < this.whiteboardModel.clickX.length; i++) {
       this.ctx.beginPath();
       if (this.whiteboardModel.clickDrag[i] && i) {
